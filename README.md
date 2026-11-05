@@ -230,6 +230,9 @@ flowchart LR
 
 교사 1인칭 내레이션, 장면별 타임코드·자막·음향 연출까지 샷 단위로 설계했고, **학생 얼굴·음성·이름은 공개 범위가 확인된 자료만 사용**한다는 제작 원칙을 문서에 명시했습니다.
 
+<p align="center"><img src="assets/nextjob-concepts.jpg" width="100%" alt="60초 숏폼 6장면 콘셉트 이미지"></p>
+<p align="center"><sub>6장면 콘셉트 이미지 — 영상 제작 전 검토용(AI 생성, 실제 수업 장면 재현 아님)</sub></p>
+
 **확장 — 같은 포맷을 다른 주제로** : 실제 수업 후 "인터뷰형 교육 게임"을 하나의 포맷으로 보고, 학교 리부트 · AI 분신 사용계약서 · 외계인을 위한 지구 박물관 등 8개 주제로 설계안을 추가 기획했습니다. 공통 구조는 핵심 질문 6~8개 + 중간 사건 1개 + 재검토 기회 + 생각 변화 시각화.
 
 **상태**: 실제 수업 운영 완료 — [buil-next-job-world.work-ai-kim.chatgpt.site](https://buil-next-job-world.work-ai-kim.chatgpt.site)
