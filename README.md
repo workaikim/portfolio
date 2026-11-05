@@ -153,12 +153,3 @@ erDiagram
 |---|---|---|
 | ![입장 화면](assets/magazine-entrance.png) | ![대화 화면](assets/magazine-interview.png) | ![집필 방향 선택](assets/magazine-directions.png) |
 | ![제출 확정 화면](assets/magazine-confirm.png) | ![진행자 편집 화면](assets/magazine-facilitator.png) | ![발행 완료 화면](assets/magazine-published.png) |
-
----
-
-## 기타
-
-| 레포 | 설명 |
-|---|---|
-| [qr-redirect](https://github.com/workaikim/qr-redirect) | 명함용 QR 코드 리다이렉트 게이트웨이 (공개 소스) |
-| [namecard](https://github.com/workaikim/namecard) | 디지털 명함 관리 (공개 소스) |
