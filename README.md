@@ -1,29 +1,153 @@
 # Portfolio
 
-AI를 활용한 제품·서비스·교육 콘텐츠를 기획하고 직접 구현합니다. 아래 프로젝트는 **소스는 비공개**지만 구조와 설계 판단은 공개합니다.
+AI를 활용한 제품·서비스·교육 콘텐츠를 기획하고 직접 구현합니다. 소스는 비공개, 구조와 설계 판단만 공개합니다.
+
+**[제조업 AX 강의](#제조업-ax-강의--엑셀-ai--온톨로지)** · **[리허설 랩](#리허설-랩--3d-발표-연습-공간)** · **[밤의 작은 출판사](#밤의-작은-출판사--ai-대화-출판-워크숍)**
+
+---
+
+## 제조업 AX 강의 — 엑셀 AI × 온톨로지
+
+![Status](https://img.shields.io/badge/status-기업_교육_문의_환영-f4b400) ![Claude in Excel](https://img.shields.io/badge/Claude_in_Excel-AI-cc785c) ![PowerQuery](https://img.shields.io/badge/PowerQuery-자동화-217346) ![Neo4j](https://img.shields.io/badge/Neo4j-온톨로지-008cc1)
+
+> 같은 코드, 다른 뜻. 엑셀 AI로 뜻을 맞추고, 온톨로지로 관계를 이으면, 부서를 건너는 질문에 답할 수 있다.
+
+품질·생산·생산관리·IT 실무자 및 AX 담당자 대상. 강의 기획안 · 15분 시연 시나리오 · 강의 스크립트 · 실습 데이터 · 쇼츠 영상까지 직접 기획·제작했습니다.
+
+```mermaid
+flowchart LR
+  A["엑셀 원시 데이터<br/>(부서마다 다른 코드·용어)"] --> B["① 뜻 맞추기<br/>Claude in Excel"]
+  B --> C["② 반복 처리<br/>파워쿼리"]
+  C --> D["③ 관계 잇기<br/>Neo4j 온톨로지"]
+  D --> E["부서를 건너는 질문에 답변"]
+```
+
+| 산출물 | 상태 |
+|---|---|
+| 강의 기획안 · 시연 시나리오 · 스크립트 | v4 (최종) |
+| 실습 데이터 (엑셀 · JSON) | 완성 |
+| 쇼츠 영상 · 포스터 | 완성 |
+
+<p align="center"><img src="assets/lecture-poster.png" width="240" alt="강의 포스터"></p>
+
+<details>
+<summary><b>쇼츠 스토리보드 펼쳐보기 (13컷)</b></summary>
+<br>
+
+| | | | |
+|---|---|---|---|
+| ![](assets/lecture-cut00.png) | ![](assets/lecture-cut01.png) | ![](assets/lecture-cut02.png) | ![](assets/lecture-cut03.png) |
+| ![](assets/lecture-cut04.png) | ![](assets/lecture-cut05.png) | ![](assets/lecture-cut06.png) | ![](assets/lecture-cut07.png) |
+| ![](assets/lecture-cut08.png) | ![](assets/lecture-cut09.png) | ![](assets/lecture-cut10.png) | ![](assets/lecture-cut11.png) |
+| ![](assets/lecture-cut12.png) | | | |
+
+</details>
+
+---
+
+## 리허설 랩 — 3D 발표 연습 공간
+
+![Status](https://img.shields.io/badge/status-구현_검증_완료-brightgreen) ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white) ![Node.js](https://img.shields.io/badge/Node.js-22-339933?logo=node.js&logoColor=white) ![three.js](https://img.shields.io/badge/three.js-3D-black?logo=three.js&logoColor=white) ![SQLite](https://img.shields.io/badge/SQLite-003b57?logo=sqlite&logoColor=white)
+
+> 3D 가상 발표장에서 먼저 발표하고, 녹음을 다시 들은 뒤, 원할 때만 실제 발언에 근거한 AI 청중 질문에 답한다.
+
+"발표 실력을 점수로 매기는 도구"가 아니라 "편하게 반복 연습할 수 있는 공간"을 목표로 기획했습니다.
+
+**제품 원칙**
+
+| 원칙 | 의미 |
+|---|---|
+| 발표가 먼저 | AI가 발표 중 끼어들거나 침묵으로 자동 종료시키지 않음 |
+| 질문은 선택 | 안 받아도 정상 연습으로 집계 |
+| 근거 없는 질문 금지 | AI 질문은 실제 전사에서 근거가 확인된 것만 저장 |
+| 평가 표현 금지 | 억양·표정·자신감·점수·순위 없이 전사 텍스트만 분석 |
+
+**아키텍처** — 서버 프레임워크 없이 직접 구현, 제공자는 전부 어댑터로 교체 가능
+
+```mermaid
+flowchart LR
+  R["routes<br/>(HTTP·검증만)"] --> S["services / ai<br/>(프롬프트·근거검증)"]
+  S --> REPO["repositories<br/>(DB, owner_id 격리)"]
+  S --> P["providers<br/>(AI·저장소 어댑터)"]
+  REPO --> DB[(SQLite)]
+  P -.교체 가능.-> AI1["Anthropic"]
+  P -.교체 가능.-> AI2["OpenAI 호환"]
+```
+
+**데이터 모델** — 모든 테이블에 `owner_id`, 모든 쿼리가 이걸로 격리
+
+```mermaid
+erDiagram
+  users ||--o{ projects : "소유"
+  projects ||--o{ segments : "발표 구간"
+  projects ||--o{ attempts : "연습 시도"
+  attempts ||--o{ recordings : "녹음"
+  attempts ||--o{ transcripts : "전사"
+  attempts ||--o{ qa_turns : "AI 질문"
+  attempts ||--o{ feedback : "AI 피드백"
+```
+
+**설계에서 풀어낸 문제**
+
+| 문제 | 해법 |
+|---|---|
+| 녹음 중 네트워크가 끊기면? | 청크 단위 업로드, 서버가 확인한 `last_seq`만 신뢰(클라이언트 주장 안 믿음) |
+| 정책이 바뀌면 과거 기록도 바뀌나? | `attempts.snapshot_json`에 시작 시점 조건을 통째로 복제 보존(불변 스냅샷) |
+| AI 제공자를 바꾸고 싶으면? | 인터페이스 구현 파일 1개 + 등록 1줄. 서비스·화면 코드는 무수정 |
+| 녹음을 영원히 보관해야 하나? | 녹음 원본은 30일 후 자동 만료, 전사·질문·피드백 텍스트는 무기한 보관 |
+
+**상태**: 가입·로그인, 3D 공간 입장, 녹음·재생·북마크, 프로젝트/구간 관리 구현 및 검증 완료(타입체크·빌드·서버 테스트 통과). AI 연결은 어댑터 구조로 분리되어 키 연결 즉시 동작.
+
+<p align="center">
+<img src="assets/rehearsal-lab-concept-1.png" width="300"> <img src="assets/rehearsal-lab-concept-2.png" width="300">
+</p>
+<p align="center"><sub>실제 화면이 아닌 디자인 시안 — 현재 화면을 이 디자인으로 교체 예정</sub></p>
 
 ---
 
 ## 밤의 작은 출판사 — AI 대화 출판 워크숍
 
-> 말로 꺼낸 이야기를 AI와의 대화로 끌어내고, 여러 답변을 종합해 한 편의 글로 완성한 뒤, 참가자들의 글을 모아 한 권의 책으로 발행하는 워크숍용 웹앱.
+![Status](https://img.shields.io/badge/status-구현_검증_완료-brightgreen) ![Node.js](https://img.shields.io/badge/Node.js-22-339933?logo=node.js&logoColor=white) ![SQLite](https://img.shields.io/badge/SQLite-003b57?logo=sqlite&logoColor=white) ![Playwright](https://img.shields.io/badge/Playwright-PDF_인쇄-2ead33?logo=playwright&logoColor=white) ![deps](https://img.shields.io/badge/외부_의존성-0개-blue)
 
-성인 대상 글쓰기 워크숍을 위해 기획했습니다. 참가자가 글쓰기 실력을 평가받는 게 아니라, 편하게 말한 내용을 AI 인터뷰어가 받아 적고 AI 집필자가 독립적으로 읽히는 글로 재구성해주는 경험을 설계했습니다. 진행자는 여러 참가자의 확정 원고를 모아 코너를 구성하고, 실제 PDF 책자로 발행할 수 있습니다.
+> 말로 꺼낸 이야기를 AI와의 대화로 끌어내고, 여러 답변을 종합해 한 편의 글로 완성해, 참가자들의 글을 한 권의 책으로 발행한다.
+
+성인 대상 글쓰기 워크숍용. 참가자는 글쓰기 실력을 평가받지 않고, 편하게 말한 내용을 AI가 독립적으로 읽히는 글로 재구성해줍니다.
 
 **제품 설계 포인트**
-- 같은 질문을 반복하지 않는 적응형 인터뷰 — 첫 질문부터 매번 다른 관점 재료로 새로 생성하고, 이후 질문은 직전 답변의 실제 표현을 짚어 되묻습니다.
-- AI가 대화에 없던 사실(숫자·인용 등)을 지어내면 자동으로 "확인해 주세요"로 표시합니다.
-- 발행 시점의 원고를 불변 스냅샷으로 고정해, 발행 후 원고를 고쳐도 이미 나온 책은 조용히 바뀌지 않습니다.
 
-**기술 구조**
-- Node.js(서버 프레임워크 없이 직접 구현) + `node:sqlite`(파일 기반, 외부 DB 서버 불필요) + 바닐라 JS 프런트엔드. 외부 npm 의존성 0개.
-- 계층: `routes(API·권한)` → `ai/roles(대화상대·집필·수정·편집제안 4역할, 테마 무관)` → `ai/provider(제공자 어댑터)` / `db(SQLite 저장)` → `book(조판) + pdf(Playwright 헤드리스 인쇄)`.
-- **화면 테마와 핵심 로직 완전 분리**: `ThemeAdapter`는 DOM 무대와 효과음만 받고 상태 저장소·AI 호출·DB에 접근할 방법이 구조적으로 없음 — 테마를 바꿔도 대화·원고·타이머가 깨지지 않음을 설계로 보장.
-- 데이터 모델: `facilitator 1:N gathering 1:N issue(참가코드) 1:N participant 1:1 manuscript`, `issue 1:N edition(발행 스냅샷)`. 진행 중 구성안(`plan_json`, 가변)과 발행 스냅샷(`snapshot_json`, 불변)을 별도 컬럼으로 분리.
-- 인터뷰 전문은 서버에 저장하지 않고 AI 호출 시에만 전달 — 서버가 뚫려도 대화 전문 유출 경로 자체가 없음.
-- 검증: 서버 계약 테스트 15개 + Playwright E2E 32개(권한 경계, 타이머 복원, 테마 전환 시 상태 보존, PDF 페이지 분할·목차 정합성 포함) 자동화.
+| 포인트 | 구현 |
+|---|---|
+| 질문 반복 방지 | 첫 질문은 매번 다른 관점 재료로 생성, 이후 질문은 직전 답변의 실제 표현을 짚어 되물음 |
+| 없는 사실 방지 | AI가 대화에 없던 숫자·인용을 쓰면 자동으로 "확인해 주세요" 표시 |
+| 발행본 불변성 | 발행 시점 원고를 스냅샷으로 고정, 이후 수정이 기존 발행본을 바꾸지 않음 |
 
-**상태**: 입장→대화→집필→수정→제출→진행자 편집→발행→PDF 전 과정 구현 및 로컬 검증 완료. 실사용 배포는 준비 중입니다.
+**아키텍처** — 화면 테마와 핵심 로직을 구조적으로 분리
+
+```mermaid
+flowchart LR
+  UI["참가자 화면"] --> THEME["ThemeAdapter<br/>(화면 연출만, 상태 접근 불가)"]
+  UI --> STORE["core/store<br/>(공통 상태)"]
+  STORE --> API["server/app<br/>(API·권한)"]
+  API --> ROLES["ai/roles<br/>(대화·집필·수정·편집 4역할)"]
+  ROLES --> PROVIDER["ai/provider"]
+  API --> DB[(SQLite)]
+  DB --> BOOK["book + pdf<br/>(조판·발행)"]
+```
+
+**데이터 모델** — 진행 중 구성안과 발행 스냅샷을 분리해 "발행 후 조용한 변경"을 원천 차단
+
+```mermaid
+erDiagram
+  facilitator ||--o{ gathering : ""
+  gathering ||--o{ issue : "참가코드"
+  issue ||--o{ participant : ""
+  participant ||--|| manuscript : ""
+  issue ||--o{ edition : "발행 스냅샷(불변)"
+```
+
+**검증**: 서버 계약 테스트 15개 + Playwright E2E 32개 — 권한 경계, 타이머 복원, 테마 전환 시 상태 보존, PDF 페이지 분할·목차 정합성 포함.
+
+**상태**: 입장 → 대화 → 집필 → 수정 → 제출 → 진행자 편집 → 발행 → PDF 전 과정 구현 및 로컬 검증 완료. 실사용 배포는 준비 중.
 
 | | | |
 |---|---|---|
@@ -32,47 +156,9 @@ AI를 활용한 제품·서비스·교육 콘텐츠를 기획하고 직접 구�
 
 ---
 
-## 리허설 랩 — 3D 발표 연습 공간
-
-> 3D 가상 발표장에서 먼저 발표를 마치고, 녹음을 다시 들은 뒤, 원할 때만 실제 발언에 근거한 AI 청중 질문에 답하는 연습용 웹앱.
-
-"발표 실력을 점수로 매기는 도구"가 아니라 "편하게 반복 연습할 수 있는 공간"을 목표로 기획했습니다. AI가 발표 중에 끼어들거나 침묵을 이유로 자동 종료시키지 않고, 질문도 선택 사항입니다 — 질문을 받지 않아도 정상적인 연습으로 집계됩니다.
-
-**제품 설계 포인트**
-- AI 질문은 실제 전사(발언 기록)에서 근거가 확인된 것만 저장 — 근거 없는 질문은 애초에 만들지 않습니다.
-- 억양·표정·자신감 같은 주관적 평가나 점수·순위 표현을 쓰지 않고, 전사된 텍스트만 분석합니다.
-- 활동량(연습 횟수 등)을 실력 점수로 치환하지 않습니다.
-
-**기술 구조**
-- TypeScript(strict) + Node.js 22 타입 스트리핑으로 **빌드 없이 서버 TS를 직접 실행**(서버 프레임워크 없이 직접 구현한 초소형 라우터). 프런트는 three.js(3D 렌더링) + esbuild 번들링, 프레임워크 없이 DOM 직접 조작.
-- 계층: `routes(HTTP, 검증만)` → `services`/`ai(규칙: 프롬프트·근거검증·가드)` → `repositories(DB, 항상 owner_id로 제한)` / `providers(AI·저장소 외부 연결 어댑터)`.
-- **제공자 어댑터 패턴**: 전사(OpenAI 호환)·LLM(Anthropic/OpenAI 호환)·저장소 모두 인터페이스로 추상화 — 새 AI 제공자 추가 시 어댑터 파일 하나 + 등록 한 줄만 필요, 서비스·화면 코드는 수정 불필요.
-- 데이터 모델(SQLite, 마이그레이션 버전 관리): `user 1:N project 1:N segment`, `(project,segment) 1:N attempt 1:N {recording, transcript, qa_turn, feedback, bookmark}`. 모든 사용자 데이터 테이블에 `owner_id`가 있고 모든 쿼리가 이걸로 제한 — 타 사용자 데이터 접근 원천 차단.
-- `attempts.snapshot_json`에 시도 시작 시점의 조건을 통째로 복제 보존 — 이후 정책이 바뀌어도 과거 기록은 "그 당시 조건"을 그대로 보여줌(불변 스냅샷 패턴).
-- 녹음은 청크 단위 업로드, 서버가 실제 저장 확인한 `last_seq`만 신뢰(클라이언트 주장 상태를 그대로 믿지 않음) — 네트워크 불안정 환경에서도 안전하게 최대 30분 녹음.
-- 보관 정책: 녹음 원본은 30일 후 자동 만료·삭제되지만 전사·질문·피드백 텍스트는 원음과 독립적으로 무기한 보관.
-
-**상태**: 가입·로그인, 3D 공간 입장, 녹음·재생·북마크, 프로젝트/구간 관리까지 구현 및 검증 완료(타입체크·빌드·서버 테스트 통과). AI 연결(전사·질문 생성)은 제공자 키 연결 후 바로 동작하는 어댑터 구조로 분리해둔 상태.
-
-| | |
-|---|---|
-| ![디자인 시안 1](assets/rehearsal-lab-concept-1.png) | ![디자인 시안 2](assets/rehearsal-lab-concept-2.png) |
-
-*(현재 화면 디자인을 위 시안으로 교체할 예정이라, 실제 화면 대신 디자인 시안으로 소개합니다.)*
-
----
-
-## 제조업 AX 강의 — 엑셀 AI × 온톨로지
-
-> "엑셀 안의 AI로 코드의 뜻을 맞추고, 온톨로지로 개념의 관계를 이으면, 부서를 건너는 질문에 답할 수 있다."
-
-제조업 현장에서 부서마다 다르게 쓰는 코드·용어를 AI(Claude in Excel)로 정리하고, 반복 작업은 파워쿼리로, 개념 간 관계는 Neo4j 온톨로지로 연결해 부서를 넘나드는 질문에 답할 수 있게 하는 강의를 기획했습니다. 강의 기획안, 15분 시연 시나리오, 강의 스크립트, 실습 데이터, 쇼츠 영상까지 직접 제작했습니다.
-
-**상태**: 강의안·시연 시나리오·실습 자료 v4(최종) 완성.
-
----
-
 ## 기타
 
-- [qr-redirect](https://github.com/workaikim/qr-redirect) — 명함용 QR 코드 리다이렉트 게이트웨이 (공개 소스)
-- [namecard](https://github.com/workaikim/namecard) — 디지털 명함 관리 (공개 소스)
+| 레포 | 설명 |
+|---|---|
+| [qr-redirect](https://github.com/workaikim/qr-redirect) | 명함용 QR 코드 리다이렉트 게이트웨이 (공개 소스) |
+| [namecard](https://github.com/workaikim/namecard) | 디지털 명함 관리 (공개 소스) |
